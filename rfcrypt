@@ -1,0 +1,62 @@
+import argparse
+import base64
+import os
+from colorama import Fore
+
+os.system("clear")
+
+b = Fore.LIGHTBLUE_EX
+r = Fore.LIGHTRED_EX
+p = Fore.RESET
+y = Fore.LIGHTYELLOW_EX
+g = Fore.LIGHTGREEN_EX
+
+print(f"""{r}
+ ____  _____ ____ ______   ______ _____
+|  _ \|  ___/ ___|  _ \ \ / /  _ \_   _|
+| |_) | |_ | |   | |_) \ V /| |_) || |
+|  _ <|  _|| |___|  _ < | | |  __/ | |
+|_| \_\_|   \____|_| \_\|_| |_|    |_| {y}1.0
+
+                          {g}CODE BY: FII14
+{p}""")
+
+parser = argparse.ArgumentParser(description='Encrypt and decrypt files.')
+parser.add_argument('-e', '--encrypt', action='store_true', help='Encrypt the file')
+parser.add_argument('-d', '--decrypt', action='store_true', help='Decrypt the file')
+parser.add_argument('files', nargs='+', help='Paths to the files to encrypt or decrypt')
+args = parser.parse_args()
+
+for file in args.files:
+    if not os.path.exists(file):
+        print(f"File '{file}' not found.")
+        continue
+
+    if args.encrypt:
+        output_file = f"{file}.RF"
+        print(f"{b}[*] {p}Encrypting file '{file}'...")
+        with open(file, 'rb') as file_obj:
+            file_data = file_obj.read()
+        encrypted_data = base64.b64encode(file_data)
+        with open(output_file, 'wb') as encrypted_file:
+            encrypted_file.write(encrypted_data)
+        print(f"{g}[+] {p}File '{file}' successfully encrypted. Encrypted file saved as '{output_file}'.")
+    elif args.decrypt:
+        if not file.endswith('.RF'):
+            print(f"{r}[-] {p}The file '{file}' to be decrypted must have the '.RF' extension.")
+            continue
+
+        output_file = file[:-3]
+        print(f"{b}[*] {p}Decrypting file '{file}'...")
+        with open(file, 'rb') as encrypted_file:
+            encrypted_data = encrypted_file.read()
+        try:
+            decrypted_data = base64.b64decode(encrypted_data)
+            with open(output_file, 'wb') as decrypted_file:
+                decrypted_file.write(decrypted_data)
+            print(f"{g}[+] {p}File '{file}' successfully decrypted. Decrypted file saved as '{output_file}'.")
+        except base64.binascii.Error:
+            print("{r}[-] {p}Invalid base64 encoding. The file may not be encrypted properly.")
+    else:
+        print("Please specify either '-e' for encryption or '-d' for decryption.")
+        break
